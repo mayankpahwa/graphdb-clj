@@ -1,20 +1,21 @@
 # graphdb-clj
 
-FIXME: description
+A in-memory graph database in Clojure using cypher query language.
+
+(**_WIP_**)
 
 ## Installation
 
-Download from http://example.com/FIXME.
+
 
 ## Usage
 
-FIXME: explanation
 
-    $ java -jar graphdb-clj-0.1.0-standalone.jar [args]
+
 
 ## Options
 
-FIXME: listing of options this app accepts.
+
 
 ## Examples
 
@@ -30,7 +31,7 @@ FIXME: listing of options this app accepts.
 
 ## License
 
-Copyright © 2017 FIXME
+Copyright © 2017
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
