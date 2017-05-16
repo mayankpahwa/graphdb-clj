@@ -2,6 +2,8 @@
 
 (def graph-state (atom (eval (read-string "src/database/graph1.txt"))))
 
+(def QUERY-STATE {:create create-fn})
+
 
 ;Create Functions------------------
 
