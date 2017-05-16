@@ -2,7 +2,7 @@
 
 (def graph-state (atom (eval (read-string "src/database/graph1.txt"))))
 
-(def QUERY-STATE {:create create-fn})
+(def QUERY-STATE {:create create-fn :return return-fn})
 
 
 ;Create Functions------------------
@@ -23,5 +23,10 @@
 (defn create-fn [data]
 	(map helper-create data))
 
-;----------------------------------
 
+;;Return Functions-------------------
+
+(defn return-fn [data]
+	(case data
+	    '*' @graph-state
+	    (@graph-state data)))
