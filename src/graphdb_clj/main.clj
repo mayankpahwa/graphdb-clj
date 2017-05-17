@@ -1,14 +1,11 @@
 (ns graphdb-clj.main)
 
-(def graph-state (atom (eval (read-string "src/database/graph1.txt"))))
-
-(def MATCH-QUERY {:create create-fn :return return-fn :set set-fn :remove remove-fn :delete delete-fn})
-
+(def graph-state (atom (eval (read-string (slurp "src/database/graph1.txt")))))
 
 ;Create Functions------------------
 
 (defn create-node [node-dict]
-	(swap! graph-state assoc-in (node-dict :id) (assoc (dissoc node-dict :id) :in-edge [] :out-edge [])))
+	(swap! graph-state assoc-in [(node-dict :id)] (assoc (dissoc node-dict :id) :in-edge [] :out-edge [])))
 
 (defn create-edge [[head tail type]]
 	(swap! graph-state update-in [head :out-edge] conj [tail type])
@@ -21,7 +18,7 @@
 		(create-edge (data-dict :edge))))
 
 (defn create-fn [data]
-	(map helper-create data))
+    (doall (map helper-create data)))
 
 ;;Match-Where Filter-----------
 
@@ -70,18 +67,18 @@
 ;;Delete Functions-------------------
 
 (defn delete-in-edge [in-node node-id]
-    (let [updated-edge-list (filter #(not (contains? % node-id)) ((@graph-state in-node) :in-edge))]
+    (let [updated-edge-list (vec (filter #(not= node-id (first %)) ((@graph-state in-node) :in-edge)))]
         (swap! graph-state assoc-in [in-node :in-edge] updated-edge-list)))
 
 (defn delete-out-edge [out-node node-id]
-    (let [updated-edge-list (filter #(not (contains? % node-id)) ((@graph-state out-node) :out-edge))]
+    (let [updated-edge-list (vec (filter #(not= node-id (first %)) ((@graph-state out-node) :out-edge)))]
         (swap! graph-state assoc-in [out-node :out-edge] updated-edge-list)))
 
 (defn helper-delete [node-id]
     (let [in-nodes (map first ((@graph-state node-id) :out-edge))
           out-nodes (map first ((@graph-state node-id) :in-edge))]
-     (map #(delete-in-edge % node-id) in-nodes)
-     (map #(delete-out-edge % node-id) out-nodes)
+     (doall (map #(delete-in-edge % node-id) in-nodes))
+     (doall (map #(delete-out-edge % node-id) out-nodes))
      (swap! graph-state dissoc node-id)))
 
 (defn delete-fn [data]
@@ -89,8 +86,11 @@
     (map helper-delete filtered-nodes)))
 
 
+(def MATCH-QUERY {:create create-fn :return return-fn :set set-fn :remove remove-fn :delete delete-fn})
+
 ;;Main Function :----------------------
 
 (defn main [query-dict]
-	(let [[query-key query-value] (flatten (vec query-dict))]
+	(let [query-key (first (keys query-dict))
+		  query-value (first (vals query-dict))]
        ((MATCH-QUERY query-key) query-value)))
