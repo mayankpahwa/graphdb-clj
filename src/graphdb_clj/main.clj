@@ -87,3 +87,10 @@
 (defn delete-fn [data]
     (let [filtered-nodes (match-where-filter data)]
     (map helper-delete filtered-nodes)))
+
+
+;;Main Function :----------------------
+
+(defn main [query-dict]
+	(let [[query-key query-value] (flatten (vec query-dict))]
+       ((MATCH-QUERY query-key) query-value)))
