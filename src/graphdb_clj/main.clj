@@ -44,6 +44,15 @@
 	    '*' @graph-state
 	    (@graph-state data)))
 
+;;Remove Functions-------------------
+
+(defn helper-remove [property node-id]
+     (swap! graph-state assoc-in [node-id] (dissoc (@graph-state node-id) property)))
+
+(defn remove-fn [data]
+    (let [filtered-nodes (match-where-filter data)]
+        (map #(helper-remove (data :property) %) filtered-nodes)))
+
 ;;Delete Functions-------------------
 
 (defn delete-in-edge [in-node node-id]
