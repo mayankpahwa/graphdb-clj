@@ -39,10 +39,14 @@
 
 ;;Return Functions-------------------
 
+(defn helper-return [property node-id]
+    (if property
+        (get-in @graph-state [node-id property])
+        (get @graph-state node-id)))
+
 (defn return-fn [data]
-	(case data
-	    '*' @graph-state
-	    (@graph-state data)))
+    (let [filtered-nodes (match-where-filter data)]
+        (map #(helper-return (data :property) %) filtered-nodes)))
 
 ;;Remove Functions-------------------
 
