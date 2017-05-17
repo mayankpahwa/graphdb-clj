@@ -37,6 +37,16 @@
           	                     match-filter-nodes)]
         where-filter-nodes))
 
+;;Set Functions-------------------
+
+(defn helper-set [property node-id]
+    (let [[property-key property-value] (flatten (vec property))]
+        (swap! graph-state assoc-in [node-id property-key] property-value)))
+
+(defn set-fn [data]
+    (let [filtered-nodes (match-where-filter data)]
+        (map #(helper-set (data :property) %) filtered-nodes)))
+
 ;;Return Functions-------------------
 
 (defn helper-return [property node-id]
