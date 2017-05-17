@@ -2,7 +2,7 @@
 
 (def graph-state (atom (eval (read-string "src/database/graph1.txt"))))
 
-(def QUERY-STATE {:create create-fn :return return-fn})
+(def MATCH-QUERY {:create create-fn :return return-fn :set set-fn :remove remove-fn :delete delete-fn})
 
 
 ;Create Functions------------------
