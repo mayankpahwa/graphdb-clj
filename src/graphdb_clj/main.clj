@@ -23,6 +23,19 @@
 (defn create-fn [data]
 	(map helper-create data))
 
+;;Match-Where Filter-----------
+
+(defn match-where-filter [data]
+    (let [all-nodes (keys @graph-state)
+          match-dict (data :match)
+          match-filter-nodes (if (empty? match-dict)
+                                  all-nodes
+                                  (filter #(= (match-dict :type) ((@graph-state %) :type)) all-nodes))
+          [where-key where-val] (flatten (vec (data :where)))
+          where-filter-nodes (if where-key
+          	                     (filter #(= where-val ((@graph-state %) where-key)) match-filter-nodes)
+          	                     match-filter-nodes)]
+        where-filter-nodes))
 
 ;;Return Functions-------------------
 
@@ -49,11 +62,5 @@
      (swap! graph-state dissoc node-id)))
 
 (defn delete-fn [data]
-    (let [all-nodes (keys @graph-state)
-          match-dict (data :match)
-          match-filter-nodes (if (empty? match-dict)
-                                  all-nodes
-                                  (filter #(= (match-dict :type) ((@graph-state %) :type)) all-nodes))
-          [where-key where-val] (flatten (vec (data :where)))
-          where-filter-nodes (filter #(= where-val ((@graph-state %) where-key)) match-filter-nodes)]
-    (map helper-delete where-filter-nodes)))
+    (let [filtered-nodes (match-where-filter data)]
+    (map helper-delete filtered-nodes)))
