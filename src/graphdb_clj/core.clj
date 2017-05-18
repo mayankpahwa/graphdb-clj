@@ -3,5 +3,6 @@
   (:gen-class))
 
 (defn -main
-  [query]
-  (handler query))
+  []
+  (while true
+    (handler)))
