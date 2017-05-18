@@ -1,6 +1,6 @@
 (ns graphdb-clj.main)
 
-(def graph-state (atom (eval (read-string (slurp "src/database/graph1.txt")))))
+(def graph-state (atom (read-string (slurp "src/database/graph1.txt"))))
 
 ;Save to file Function-------------
 
@@ -47,7 +47,7 @@
 
 (defn set-fn [data]
     (let [filtered-nodes (match-where-filter data)]
-        (map #(helper-set (data :property) %) filtered-nodes)))
+        (doall (map #(helper-set (data :property) %) filtered-nodes))))
 
 ;;Return Functions-------------------
 
@@ -58,7 +58,7 @@
 
 (defn return-fn [data]
     (let [filtered-nodes (match-where-filter data)]
-        (map #(helper-return (data :property) %) filtered-nodes)))
+        (doall (map #(helper-return (data :property) %) filtered-nodes))))
 
 ;;Remove Functions-------------------
 
@@ -67,7 +67,7 @@
 
 (defn remove-fn [data]
     (let [filtered-nodes (match-where-filter data)]
-        (map #(helper-remove (data :property) %) filtered-nodes)))
+        (doall (map #(helper-remove (data :property) %) filtered-nodes))))
 
 ;;Delete Functions-------------------
 
@@ -88,15 +88,17 @@
 
 (defn delete-fn [data]
     (let [filtered-nodes (match-where-filter data)]
-    (map helper-delete filtered-nodes)))
+      (doall (map helper-delete filtered-nodes))))
 
 
 (def MATCH-QUERY {:create create-fn :return return-fn :set set-fn :remove remove-fn :delete delete-fn})
 
 ;;Main Function :----------------------
 
-(defn handler [query-dict]
-	(let [query-key (first (keys query-dict))
-		    query-value (first (vals query-dict))]
+(defn handler []
+    (let [query-string (read-line)
+          query-dict (read-string query-string)
+          query-key (first (keys query-dict))
+          query-value (first (vals query-dict))]
       ((MATCH-QUERY query-key) query-value))
   (save-to-file))
