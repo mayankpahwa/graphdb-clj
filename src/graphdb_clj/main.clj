@@ -2,6 +2,11 @@
 
 (def graph-state (atom (eval (read-string (slurp "src/database/graph1.txt")))))
 
+;Save to file Function-------------
+
+(defn save-to-file []
+  (spit "src/database/graph1.txt" @graph-state))
+
 ;Create Functions------------------
 
 (defn create-node [node-dict]
@@ -92,5 +97,6 @@
 
 (defn main [query-dict]
 	(let [query-key (first (keys query-dict))
-		  query-value (first (vals query-dict))]
-       ((MATCH-QUERY query-key) query-value)))
+		    query-value (first (vals query-dict))]
+      ((MATCH-QUERY query-key) query-value))
+  (save-to-file))
