@@ -95,7 +95,7 @@
 
 ;;Main Function :----------------------
 
-(defn main [query-dict]
+(defn handler [query-dict]
 	(let [query-key (first (keys query-dict))
 		    query-value (first (vals query-dict))]
       ((MATCH-QUERY query-key) query-value))

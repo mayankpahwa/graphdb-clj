@@ -1,7 +1,7 @@
 (ns graphdb-clj.core
+  (:use [graphdb-clj.main])
   (:gen-class))
 
 (defn -main
-  "I don't do a whole lot ... yet."
-  [& args]
-  (println "Hello, World!"))
+  [query]
+  (handler query))
