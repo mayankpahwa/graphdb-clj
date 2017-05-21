@@ -52,9 +52,9 @@
 ;;Return Functions-------------------
 
 (defn helper-return [property node-id]
-    (if property
+    (prn (if property
         (get-in @graph-state [node-id property])
-        (get @graph-state node-id)))
+        (get @graph-state node-id))))
 
 (defn return-fn [data]
     (let [filtered-nodes (match-where-filter data)]
