@@ -60,3 +60,13 @@
   (let [id-match (re-find id-regex query)]
       (if id-match
         [id-match (trim (subs query (count id-match)))])))
+
+(def value-parser (any-one-parser-factory keyword-parser create-node-parser create-edge-parser
+                   match-condition-parser property-fix-parser property-query-parser type-parser id-parser))
+
+(defn query-parser [input]
+  (loop [query input parsed-vec []])
+    (if (empty? query)
+        parsed-vec
+        (let [[consumed-str rest-str] (value-parser query)]
+          (recur rest-str (conj parsed-vec consumed-str)))))
