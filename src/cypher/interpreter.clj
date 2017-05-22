@@ -1,4 +1,22 @@
 ;;Interpreter for the cypher query language
+(use '[clojure.string])
+
+(def change-type [value-str]
+  (if (starts-with? value-str #"'") 
+	  (replace value-str #"'" "") 
+	  (Integer. value-str)))
+
+(def keyword-ify [[key-str value-str]]
+	[(keyword key-str) (change-type value-str)])
+
+(defn json-to-map-fn [json-str]
+	(let [json-list (map trim (split json-str #","))
+		  key-val-pair-list (map #(map trim (split % #":")) json-list)]
+		 (map keyword-ify key-val-pair-list)))
+
+(defn node-parse-build-dict [q-string]
+	(let [[full-match id-val type-val json-str] (re-find #"\((\w+):(\w+)\s*\{(.+)\}\)" q-string)]
+		(into (hash-map :id id-val :type type-val) (json-to-map-fn json-str))))
 
 (defn node-builder [q-string]
 	(hashmap :node (node-parse-build-dict q-string)))
