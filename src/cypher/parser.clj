@@ -69,7 +69,8 @@
         [id-match (trim (subs query (count id-match)))])))
 
 (def value-parser (any-one-parser-factory keyword-parser create-node-parser create-edge-parser
-                   match-condition-parser property-fix-parser property-query-parser type-parser id-parser))
+                   match-condition-parser property-fix-parser property-query-parser type-parser id-parser
+                   comma-parser))
 
 (defn query-parser [input]
   (loop [query input parsed-vec []]
