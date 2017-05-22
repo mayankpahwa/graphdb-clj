@@ -17,9 +17,16 @@
 
 (def id-regex #"^[a-zA-Z]\w*")
 
+(def comma-regex #"^,")
+
 
 (defn any-one-parser-factory [& args]
   (fn [data] ((reduce #(if (%1 data) %1 %2) args) data)))
+
+(defn comma-parser [query]
+  (let [comma-match (re-find comma-regex query)]
+      (if comma-match
+        [nil (trim (subs query 1))])))
 
 (defn keyword-parser [query]
   (let [keywords ["create " "match " "where " "return " "delete " "remove " "set "]]
@@ -65,8 +72,10 @@
                    match-condition-parser property-fix-parser property-query-parser type-parser id-parser))
 
 (defn query-parser [input]
-  (loop [query input parsed-vec []])
+  (loop [query input parsed-vec []]
     (if (empty? query)
         parsed-vec
         (let [[consumed-str rest-str] (value-parser query)]
-          (recur rest-str (conj parsed-vec consumed-str)))))
+          (if consumed-str
+              (recur rest-str (conj parsed-vec consumed-str))
+              (recur rest-str parsed-vec))))))
