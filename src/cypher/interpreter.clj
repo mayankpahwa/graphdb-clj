@@ -3,6 +3,10 @@
 (defn node-builder [q-string]
 	(hashmap :node (node-parse-build-dict q-string)))
 
+(defn edge-parse-build-list [q-string]
+  (let [[full-match head type tail] (re-find #"\((\w+)\)-\[:(\w+)\]->\((\w+)\)" q-string)]
+  	[head tail type]))
+
 (defn edge-builder [q-string]
 	(hashmap :edge (edge-parse-build-list q-string)))
 
