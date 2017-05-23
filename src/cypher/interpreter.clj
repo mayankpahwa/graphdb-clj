@@ -42,6 +42,13 @@
 	   {:type (last type-match)}
 	   {})))
 
+(defn property-identify [q-str]
+	(let [[property-match property-key property-value] (re-find #"\w+\.(\w+)\s*\=\s*(.+)" q-str)]
+		(hash-map (keyword property-key) (change-type property-value))))
+
+(defn where-dict-builder [match-dict q-list]
+	(keyword-dict-builder (assoc match-dict :where (property-identify (second q-list))) (rest (rest q-list))))
+
 (defn match-dict-builder [q-list]
 	(let [match-dict {:match (type-identify (first q-list))}
 		  rest-list (rest q-list)]
