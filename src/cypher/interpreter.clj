@@ -60,6 +60,24 @@ n.property,n:type
 	(let [[property-match property-key property-value] (re-find #"\w+\.(\w+)\s*\=\s*(.+)" q-str)]
 		(hash-map (keyword property-key) (change-type property-value))))
 
+(defn value-builder [query-value]
+	(let [property-fix-match (re-find property-fix-regex query-value)
+		  property-query-match (re-find property-query-regex query-value)
+		  type-match (re-find type-regex query-value)
+		  id-match (re-find id-regex query-value)]
+	(cond 
+		 property-fix-regex (hash-map :property (keyword-ify (subvec property-fix-match 1 3)))
+		 property-query-match (hash-map :property (keyword (second property-query-match)))
+		 type-match (let [type-label (second type-match)] 
+		 	           (if (= type-label "type")
+		    	           (hash-map :property :type)
+		    	           (hash-map :property (hash-map :type type-label))))
+		 id-match {})))
+
+(defn keyword-dict-builder [match-where-dict q-list]
+	(let [[query-type query-value] q-list]
+		(hash-map (keyword query-type) (conj match-where-dict (value-builder query-value)))))
+
 (defn where-dict-builder [match-dict q-list]
 	(keyword-dict-builder (assoc match-dict :where (property-identify (second q-list))) (rest (rest q-list))))
 
