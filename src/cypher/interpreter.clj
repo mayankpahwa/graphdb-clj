@@ -61,7 +61,7 @@
 		  type-match (re-find type-regex query-value)
 		  id-match (re-find id-regex query-value)]
 	(cond 
-		 property-fix-regex (hash-map :property (keyword-ify (subvec property-fix-match 1 3)))
+		 property-fix-match (hash-map :property (conj {} (keyword-ify (subvec property-fix-match 1 3))))
 		 property-query-match (hash-map :property (keyword (second property-query-match)))
 		 type-match (let [type-label (second type-match)] 
 		 	           (if (= type-label "type")
@@ -74,7 +74,7 @@
 		(hash-map (keyword query-type) (conj match-where-dict (value-builder query-value)))))
 
 (defn where-dict-builder [match-dict q-list]
-	(keyword-dict-builder (assoc match-dict :where (property-identify (second q-list))) (rest (rest q-list))))
+	(keyword-dict-builder (assoc match-dict :where (property-identify (first q-list))) (rest q-list)))
 
 (defn match-dict-builder [q-list]
 	(let [match-dict {:match (type-identify (first q-list))}
