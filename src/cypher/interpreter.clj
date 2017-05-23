@@ -36,6 +36,19 @@
 (defn create-dict-builder [q-list]
 	(hashmap :create (vec (map node-edge-builder q-list))))
 
+(defn type-identify [data]
+	(let [type-match (re-find #"\(\w+\s*:\s*(\w+)\)" data)]
+	   (if type-match
+	   {:type (last type-match)}
+	   {})))
+
+(defn match-dict-builder [q-list]
+	(let [match-dict {:match (type-identify (first q-list))}
+		  rest-list (rest q-list)]
+		(if (= "where" (second q-list))
+			(where-dict-builder match-dict (rest rest-list))
+			(keyword-dict-builder (assoc match-dict :where {}) rest-list))))
+
 (defn query-interpreter [query-list]
 	(case (first query-list)
 	  "create" (create-dict-builder (rest query-list))
