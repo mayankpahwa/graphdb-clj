@@ -1,5 +1,19 @@
 ;;Interpreter for the cypher query language
+(ns cypher.interpreter)
 (use '[clojure.string])
+
+n.property1 = value1
+n:Person
+n
+n.property,n:type
+
+(def property-fix-regex #"^\w+\.(\w+)\s*=\s*(.+)$"
+
+(def property-query-regex #"^\w+\.(\w+)$")
+
+(def type-regex #"^\w+\s*:\s*(\w+)$")
+
+(def id-regex #"^\w+$")
 
 (def change-type [value-str]
   (if (starts-with? value-str #"'") 
@@ -39,8 +53,8 @@
 (defn type-identify [data]
 	(let [type-match (re-find #"\(\w+\s*:\s*(\w+)\)" data)]
 	   (if type-match
-	   {:type (last type-match)}
-	   {})))
+	       {:type (last type-match)}
+	       {})))
 
 (defn property-identify [q-str]
 	(let [[property-match property-key property-value] (re-find #"\w+\.(\w+)\s*\=\s*(.+)" q-str)]
