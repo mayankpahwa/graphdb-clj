@@ -92,13 +92,3 @@
 
 
 (def MATCH-QUERY {:create create-fn :return return-fn :set set-fn :remove remove-fn :delete delete-fn})
-
-;;Main Function :----------------------
-
-(defn handler []
-    (let [query-string (read-line)
-          query-dict (read-string query-string)
-          query-key (first (keys query-dict))
-          query-value (first (vals query-dict))]
-      ((MATCH-QUERY query-key) query-value))
-  (save-to-file))
