@@ -31,16 +31,17 @@
 	(hash-map :node (node-parse-build-dict q-string)))
 
 (defn edge-parse-build-list [q-string]
-  (let [[full-match head type tail] (re-find #"\((\w+)\)-\[:(\w+)\]->\((\w+)\)" q-string)]
-  	[head tail type]))
+  (let [[full-match head type property-dict tail] 
+  	            (re-find #"\((\w+)\)-\[:(\w+)\s*(\{.+\})*\]->\((\w+)\)" q-string)]
+  	[head tail type property-dict]))
 
 (defn edge-builder [q-string]
 	(hash-map :edge (edge-parse-build-list q-string)))
 
 (defn node-edge-builder [q-string]
-	(if (.contains q-string "{")
-		(node-builder q-string)
-		(edge-builder q-string)))
+	(if (.contains q-string "->")
+		(edge-builder q-string)
+		(node-builder q-string)))
 
 (defn create-dict-builder [q-list]
 	(hash-map :create (vec (map node-edge-builder q-list))))

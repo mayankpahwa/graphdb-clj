@@ -6,7 +6,7 @@
 
 (defn handler []
     (let [query-str (read-line)
-    	  query-list (parser/query-parser query-str)
+    	    query-list (parser/query-parser query-str)
           query-dict (interpreter/query-interpreter query-list)
           query-key (first (keys query-dict))
           query-value (first (vals query-dict))]

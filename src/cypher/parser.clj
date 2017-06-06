@@ -5,7 +5,7 @@
 ;; Individual regular expression patterns
 (def create-node-regex #"^\([a-zA-Z]\w*\s*:\s*[a-zA-Z]\w*\s*(\{([a-zA-Z]\w*\s*:\s*(('\w+')|([0-9]+)),)*(\w+\s*:\s*(('\w+')|([0-9]+)))\})?\)")
 
-(def create-edge-regex #"^\([a-zA-Z]\w*\)-\[:[a-zA-Z]\w*\]->\([a-zA-Z]\w*\)")
+(def create-edge-regex #"^\([a-zA-Z]\w*\)-\[:[a-zA-Z]\w*\s*(\{.*\})?\]->\([a-zA-Z]\w*\)")
 
 (def match-condition-regex #"^\([a-zA-Z]\w*(:[a-zA-Z]\w*)?\)")
 
@@ -41,7 +41,7 @@
 (defn create-edge-parser [query]
   (let [edge-match (re-find create-edge-regex query)]
       (if edge-match 
-        [edge-match (trim (subs query (count edge-match)))])))
+        [(first edge-match) (trim (subs query (count (first edge-match))))])))
 
 (defn match-condition-parser [query]
   (let [match-condition (re-find match-condition-regex query)]
@@ -51,7 +51,7 @@
 (defn property-fix-parser [query]
   (let [property-fix-match (re-find property-fix-regex query)]
       (if property-fix-match
-        [(first property-fix-match) (trim (subs query (count (first property-fix-match	))))])))
+        [(first property-fix-match) (trim (subs query (count (first property-fix-match))))])))
 
 (defn property-query-parser [query]
   (let [property-query-match (re-find property-query-regex query)]

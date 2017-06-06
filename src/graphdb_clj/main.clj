@@ -12,9 +12,12 @@
 (defn create-node [node-dict]
 	(swap! graph-state assoc-in [(node-dict :id)] (assoc (dissoc node-dict :id) :in-edge [] :out-edge [])))
 
-(defn create-edge [[head tail type]]
-	(swap! graph-state update-in [head :out-edge] conj [tail type])
-	(swap! graph-state update-in [tail :in-edge] conj [head type]))
+(defn create-edge [[head tail type property-dict]]
+  (if property-dict
+      (do (swap! graph-state update-in [head :out-edge] conj [tail type (read-string property-dict)])
+          (swap! graph-state update-in [tail :in-edge] conj [head type (read-string property-dict)]))
+      (do (swap! graph-state update-in [head :out-edge] conj [tail type])
+	        (swap! graph-state update-in [tail :in-edge] conj [head type]))))
 
 
 (defn helper-create [data-dict]
