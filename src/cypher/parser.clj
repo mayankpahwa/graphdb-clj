@@ -5,7 +5,7 @@
 ;; Individual regular expression patterns
 (def create-node-regex #"^\([a-zA-Z]\w*\s*:\s*[a-zA-Z]\w*\s*(\{([a-zA-Z]\w*\s*:\s*(('\w+')|([0-9]+)),)*(\w+\s*:\s*(('\w+')|([0-9]+)))\})?\)")
 
-(def create-edge-regex #"^\([a-zA-Z]\w*\)-\[:[a-zA-Z]\w*\s*(\{.*\})?\]->\([a-zA-Z]\w*\)")
+(def create-edge-regex #"^\([a-zA-Z]\w*\)-\[:[a-zA-Z]\w*\s*(\{.*?\})?\]->\([a-zA-Z]\w*\)")
 
 (def match-condition-regex #"^\([a-zA-Z]\w*(:[a-zA-Z]\w*)?\)")
 
