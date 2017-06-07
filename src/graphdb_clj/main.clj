@@ -1,4 +1,14 @@
-(ns graphdb-clj.main)
+(ns graphdb-clj.main
+    (:require [taoensso.carmine :as car :refer (wcar)])
+    (:require [clojure.data.json :as json]))
+
+(def server-connection {:pool {}
+                        :spec {:host     "localhost"
+                               :port     6379
+                               ;;:password ""
+                               :timeout  4000}})
+
+;----
 
 (def graph-state (atom (read-string (slurp "src/database/graph1.txt"))))
 
@@ -6,6 +16,11 @@
 
 (defn save-to-file []
   (spit "src/database/graph1.txt" @graph-state))
+
+;Save to Redis DB-----------
+
+(defn save-to-redis []
+    (doall (map #(wcar server-connection (car/set (first %) (json/write-str (second %)))) (seq @graph-state))))
 
 ;Create Functions------------------
 
