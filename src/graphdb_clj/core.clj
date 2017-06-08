@@ -1,7 +1,7 @@
 (ns graphdb-clj.core
   (:require [cypher.parser :as parser]
   	        [cypher.interpreter :as interpreter]
-  	        [graphdb-clj.main :as main])
+  	        [graphdb-clj.redis :as redis])
   (:gen-class))
 
 (defn handler []
@@ -10,9 +10,7 @@
           query-dict (interpreter/query-interpreter query-list)
           query-key (first (keys query-dict))
           query-value (first (vals query-dict))]
-      ((main/MATCH-QUERY query-key) query-value))
-  (main/save-to-file)
-  (main/save-to-redis))
+      ((redis/MATCH-QUERY query-key) query-value)))
 
 (defn -main
   []
