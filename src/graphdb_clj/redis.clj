@@ -24,10 +24,10 @@
  (let [h-dict (get-data head)
        t-dict (get-data tail)]
   (if property-dict
-      (do (set-data head (assoc h-dict :out-edge (conj (h-dict :outedge) [tail type (read-string property-dict)])))
-          (set-data tail (assoc t-dict :in-edge (conj (t-dict :inedge) [head type (read-string property-dict)]))))
-      (do (set-data head (assoc h-dict :out-edge (conj (h-dict :outedge) [tail type])))
-          (set-data tail (assoc t-dict :in-edge (conj (t-dict :inedge) [head type])))))))
+      (do (set-data head (assoc h-dict :out-edge (conj (h-dict :out-edge) [tail type (read-string property-dict)])))
+          (set-data tail (assoc t-dict :in-edge (conj (t-dict :in-edge) [head type (read-string property-dict)]))))
+      (do (set-data head (assoc h-dict :out-edge (conj (h-dict :out-edge) [tail type])))
+          (set-data tail (assoc t-dict :in-edge (conj (t-dict :in-edge) [head type])))))))
 
 
 (defn helper-create [data-dict]
@@ -43,9 +43,9 @@
 (defn match-where-filter [data]
     (let [all-nodes (wcar server-connection (car/keys "*"))
           match-dict (data :match)
-          match-filter-nodes (if (empty? match-dict)
-                                  all-nodes
-                                  (filter #(= (match-dict :type) ((get-data %) :type)) all-nodes))
+          match-filter-nodes (if (contains? match-dict :type)                                
+                                  (filter #(= (match-dict :type) ((get-data %) :type)) all-nodes)
+                                  all-nodes)
           [where-key where-val] (flatten (vec (data :where)))
           where-filter-nodes (if where-key
           	                     (filter #(= where-val ((get-data %) where-key)) match-filter-nodes)
@@ -64,14 +64,28 @@
 
 ;;Return Functions-------------------
 
+(defn out-edges [s-node relationship]
+  (map first (filter #(= relationship (keyword (second %))) ((get-data s-node) :out-edge))))
+
+(defn in-edges [s-node relationship]
+  (map first (filter #(= relationship (keyword (second %))) ((get-data s-node) :in-edge))))
+
+(defn relation-filter [some-nodes rel-type relationship]
+  (cond
+    (= rel-type "hlt") (vec (set (apply concat (map #(out-edges % relationship) some-nodes))))
+    (= rel-type "tlh") (vec (set (apply concat (map #(in-edges % relationship) some-nodes))))))
+
 (defn helper-return [property node-id]
     (prn (if property
-        ((get-data node-id) property)
-        (get-data node-id))))
+            ((get-data node-id) property)
+            (get-data node-id))))
 
 (defn return-fn [data]
     (let [filtered-nodes (match-where-filter data)]
-        (doall (map #(helper-return (data :property) %) filtered-nodes))))
+       (if (contains? data :rel-type)
+           (doall (map #(helper-return (data :property) %) 
+                        (relation-filter filtered-nodes (data :rel-type) ((data :match) :relationship))))
+           (doall (map #(helper-return (data :property) %) filtered-nodes)))))
 
 ;;Remove Functions-------------------
 
@@ -102,6 +116,6 @@
 (defn delete-fn [data]
     (let [filtered-nodes (match-where-filter data)]
       (doall (map helper-delete filtered-nodes))))
----------
+;;---------
 
 (def MATCH-QUERY {:create create-fn :return return-fn :set set-fn :remove remove-fn :delete delete-fn})
