@@ -4,7 +4,7 @@
 
 (def property-fix-regex #"^\w+\.(\w+)\s*=\s*(.+)$")
 
-(def property-query-regex #"^\w+\.(\w+)$")
+(def property-query-regex #"^(\w+)\.(\w+)$")
 
 (def type-regex #"^\w+\s*:\s*(\w+)$")
 
@@ -21,19 +21,19 @@
 (defn json-to-map-fn [json-str]
 	(let [json-list (map trim (split json-str #","))
 		  key-val-pair-list (map #(map trim (split % #":")) json-list)]
-          (map keyword-ify key-val-pair-list)))
+        (map keyword-ify key-val-pair-list)))
 
 (defn node-parse-build-dict [q-string]
 	(let [[full-match id-val type-val json-str] (re-find #"\((\w+):(\w+)\s*\{(.+)\}\)" q-string)]
-		(into (hash-map :id id-val :type type-val) (json-to-map-fn json-str))))
+	   (into (hash-map :id id-val :type type-val) (json-to-map-fn json-str))))
 
 (defn node-builder [q-string]
 	(hash-map :node (node-parse-build-dict q-string)))
 
 (defn edge-parse-build-list [q-string]
   (let [[full-match head type property-dict tail] 
-  	            (re-find #"\((\w+)\)-\[:(\w+)\s*(\{.+\})*\]->\((\w+)\)" q-string)]
-  	[head tail type property-dict]))
+  	        (re-find #"\((\w+)\)-\[:(\w+)\s*(\{.+\})*\]->\((\w+)\)" q-string)]
+  	 [head tail type property-dict]))
 
 (defn edge-builder [q-string]
 	(hash-map :edge (edge-parse-build-list q-string)))
@@ -47,14 +47,18 @@
 	(hash-map :create (vec (map node-edge-builder q-list))))
 
 (defn type-identify [data]
-	(let [type-match (re-find #"\(\w+\s*:\s*(\w+)\)" data)]
+	(let [type-match (re-find #"\(\w+\s*:\s*(\w+)\)" data)
+		  rel-match (re-find #"^\(\w*\)-\[:(\w*)\s*(\{.*?\})?\]->\(\w*\)" data)]
 	   (if type-match
 	       {:type (last type-match)}
-	       {})))
+	       (if rel-match
+	       	   {:relationship (keyword (second rel-match))}
+	       	   {})
+	       )))
 
 (defn property-identify [q-str]
 	(let [[property-match property-key property-value] (re-find #"\w+\.(\w+)\s*\=\s*(.+)" q-str)]
-		(hash-map (keyword property-key) (change-type property-value))))
+	   (hash-map (keyword property-key) (change-type property-value))))
 
 (defn value-builder [query-value]
 	(let [property-fix-match (re-find property-fix-regex query-value)
@@ -62,13 +66,16 @@
 		  type-match (re-find type-regex query-value)
 		  id-match (re-find id-regex query-value)]
 	(cond 
-		 property-fix-match (hash-map :property (conj {} (keyword-ify (subvec property-fix-match 1 3))))
-		 property-query-match (hash-map :property (keyword (second property-query-match)))
-		 type-match (let [type-label (second type-match)] 
+	  property-fix-match (hash-map :property (conj {} (keyword-ify (subvec property-fix-match 1 3))))
+	  property-query-match (if (contains? #{"a" "b"} (second property-query-match))
+		 	                   (hash-map :property (keyword (last property-query-match))
+		 	                      	     :rel-type ({"a" "tlh" "b" "hlt"} (second property-query-match)))
+		 	                   (hash-map :property (keyword (last property-query-match))))
+	  type-match (let [type-label (second type-match)] 
 		 	           (if (= type-label "type")
 		    	           (hash-map :property :type)
 		    	           (hash-map :property (hash-map :type type-label))))
-		 id-match {})))
+	  id-match {})))
 
 (defn keyword-dict-builder [match-where-dict q-list]
 	(let [[query-type query-value] q-list]
